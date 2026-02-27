@@ -2,16 +2,26 @@ from fastapi import FastAPI , HTTPException , Depends , Query
 from app.database import db
 from app.queries import SEARCH_AUTHORS_QUERY
 from app.models import AuthorResponse , SearchQuery
+from app.config import settings
 import logging
 from typing import List
+from contextlib import asynccontextmanager
+from fastapi_cache import FastAPICache
+from fastapi_cache.backends.redis import RedisBackend
+from fastapi_cache.decorator import cache
+import redis.asyncio as redis
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
-
+@asynccontextmanager
+async def lifespan(app : FastAPI):
+    logger.info("Connecting to Redis...")
+    redis_client = redis.from_url(
+    )
 app = FastAPI(
-    title="Library API",
-    description="A simple library API",
-    version="1.0.0"
+    title="Library API with Redis Cache",
+    version="3.0.0",
+    lifespan=lifespan
 )
 
 @app.on_event("startup")
